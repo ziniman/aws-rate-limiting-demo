@@ -9,15 +9,16 @@ const cookies = new Cookies();
 const API_ENDPOINT = process.env.REACT_APP_BACKEND_API;
 var EVENT_NAME = process.env.REACT_APP_EVENT_NAME
 
+document.title = "re:Invent 2022 - Rate limiting demo"
+
 if (!EVENT_NAME) {
   EVENT_NAME = 'AWS Events';
 }
 
 if (!cookies.get('userID')) cookies.set('userID', guid(), { path: '/' });
 var user_id = cookies.get('userID');
-var session_id = null;
 
-const colors = ['bg-danger', 'bg-info', 'bg-warning', 'bg-primary', 'bg-success']
+const colors = ['bg-danger', 'bg-dark', 'bg-warning', 'bg-primary', 'bg-success']
 
 function guid() {
   function s4() {
@@ -50,6 +51,29 @@ class Circle extends React.Component {
   }
 }
 
+class VoteOutput extends React.Component {
+
+  render() {
+    var score = this.props.dataFromVote;
+
+    if (score) {
+        return (
+          <div className="container">
+            <div className="row m-2 text-center justify-content-center"><h5>Thanks for your vote!</h5></div>
+            <div className="row m-2 text-center justify-content-center"><h5>We have recorded the color <b>{score}</b> as your selection.</h5></div>
+          </div>
+        );
+    }
+    else {
+        return (
+          <div className="container">
+            <div className="row m-2 text-center justify-content-center"></div>
+          </div>
+        );
+    }
+  }
+}
+
 class Options extends React.Component {
   constructor(props) {
     super(props);
@@ -62,54 +86,33 @@ class Options extends React.Component {
     };
   }
 
-  componentDidMount() {
-    fetch(API_ENDPOINT + "/info/get_session?id=" + session_id)
-      .then(res => res.json())
-      .then(
-        (result) => {
-          this.setState({
-            isLoaded: true,
-            items: result[0]
-          });
-      console.log(result[0])
-        },
-        (error) => {
-          this.setState({
-            isLoaded: true,
-            error:
-              {message: "Can't retrive sessions data"},
-          });
-        }
-      )
-  }
-
   handleChildClick(a, i) {
-    this.setState({hide: true});
+    this.setState({hide: false});
     this.setState({score: a});
 
     fetch(API_ENDPOINT + '/info/store_feedback', {
         method: 'POST',
         headers : {'Content-Type': 'application/json'},
-        body:JSON.stringify({user_id:user_id, session_id:session_id, score:a})
+        body:JSON.stringify({user_id:user_id, score:a})
     }).then((res) => res.json())
-    .then((data) =>  console.log(data))
-    .catch((err)=>console.log(err))
+    .then((data) => console.log(data))
+    .catch((err) => console.log(err))
   }
 
-  renderOptions(i) {
+  renderOptions(i, c = null) {
     return <Circle
       value={i}
-      onClick={this.handleChildClick.bind(this, i , this.state.items)}
+      onClick={this.handleChildClick.bind(this, c , this.state.items)}
       />;
   }
 
   render() {
-    const {hide, items, isLoaded, error, score} = this.state;
+    const {hide, error, score} = this.state;
     if (hide) {
         return (
           <div className="container">
-            <div className="row m-2 text-center justify-content-center"><h2>Thanks for your feedback!</h2></div>
-            <div className="row m-2 text-center justify-content-center"><h4>We have recorded the score <b>{score}</b> for the session <b>{items['session_name']}</b>.</h4></div>
+            <div className="row m-2 text-center justify-content-center"><h2>Thanks for your vote!</h2></div>
+            <div className="row m-2 text-center justify-content-center"><h4>We have recorded the color <b>{score}</b> as your selection.</h4></div>
           </div>
         );
     }
@@ -119,22 +122,19 @@ class Options extends React.Component {
           <div className="row badge badge-danger m-2 p-2"><h3>Error: {error.message}</h3></div>
         </div>
       );
-    } else if (!isLoaded) {
-      return <div className="loader"></div>;
     } else {
     return (
       <div className="container">
-        <div className="row m-2 text-center justify-content-center"><h2>{EVENT_NAME}<br />Session Feedback</h2></div>
-        <div className="row m-2 text-center justify-content-center"><h4>{items['session_name']}</h4></div>
-        <div className="row m-2 text-center justify-content-center"><h6>({items['date_time']})</h6></div>
+        <div className="row m-2 text-center justify-content-center"><h1>{EVENT_NAME}</h1></div>
         <div className="row m-2 text-center justify-content-center">
-          {this.renderOptions(1)}
-          {this.renderOptions(2)}
-          {this.renderOptions(3)}
-          {this.renderOptions(4)}
-          {this.renderOptions(5)}
+          {this.renderOptions(1, "Red")}
+          {this.renderOptions(2, "Black")}
+          {this.renderOptions(3, "Yellow")}
+          {this.renderOptions(4, "Blue")}
+          {this.renderOptions(5, "Green")}
         </div>
-        <div className="row m-2 text-center justify-content-center"><h6>Pick your favorite color</h6></div>
+        <div className="row m-2 text-center justify-content-center"><h2>Pick your favorite color</h2></div>
+        <VoteOutput dataFromVote = {this.state.score} />
       </div>
     );
     }
@@ -142,10 +142,16 @@ class Options extends React.Component {
 }
 
 class Vote extends React.Component {
-
-  //componentDidMount(){
-    //document.title = "re:Invent 2022 - Rate limiting demo"
-  //}
+  constructor(props) {
+    super(props);
+    this.state = {
+      hide: false,
+      error: null,
+      isLoaded: false,
+      items: [],
+      score: null,
+    };
+  }
 
   render() {
     return (
