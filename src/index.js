@@ -15,6 +15,7 @@ if (!EVENT_NAME) {
 
 if (!cookies.get('userID')) cookies.set('userID', guid(), { path: '/' });
 var user_id = cookies.get('userID');
+var session_id = null;
 
 const colors = ['bg-danger', 'bg-info', 'bg-warning', 'bg-primary', 'bg-success']
 
