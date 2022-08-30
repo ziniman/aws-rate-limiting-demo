@@ -143,7 +143,7 @@ class Options extends React.Component {
 class Vote extends React.Component {
 
   //componentDidMount(){
-    document.title = "re:Invent 2022 - Rate limiting demo"
+    //document.title = "re:Invent 2022 - Rate limiting demo"
   //}
 
   render() {
