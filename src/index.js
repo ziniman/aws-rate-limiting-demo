@@ -27,8 +27,8 @@ function guid() {
   return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
 }
 
-var urlParams = new URLSearchParams(window.location.search);
-var session_id = urlParams.get('session_id');
+//var urlParams = new URLSearchParams(window.location.search);
+//var session_id = urlParams.get('session_id');
 
 class Circle extends React.Component {
   handleClick (i){
@@ -133,7 +133,7 @@ class Options extends React.Component {
           {this.renderOptions(4)}
           {this.renderOptions(5)}
         </div>
-        <div className="row m-2 text-center justify-content-center"><h6>Rate from 1 to 5, where 1 is the lowest score and 5 is the highest.</h6></div>
+        <div className="row m-2 text-center justify-content-center"><h6>Pick your favorite color</h6></div>
       </div>
     );
     }
@@ -142,9 +142,9 @@ class Options extends React.Component {
 
 class Vote extends React.Component {
 
-  componentDidMount(){
-    document.title = "Feedback System"
-  }
+  //componentDidMount(){
+    document.title = "re:Invent 2022 - Rate limiting demo"
+  //}
 
   render() {
     return (
