@@ -94,7 +94,25 @@ class Options extends React.Component {
         method: 'POST',
         headers : {'Content-Type': 'application/json'},
         body:JSON.stringify({user_id:user_id, score:a})
-    }).then((res) => res.json())
+    })
+    .then((res) => {
+      console.log(res.ok);
+      console.log(res.status);
+      if (res.status !== 200) {
+        this.setState({
+            error:
+              {message: "Can't store data"},
+          });
+          setTimeout(() => {
+            console.log(this.error);
+            this.setState({
+                error: null,
+                score: null
+            });
+          }, 5000);
+      }
+      res.json();
+    })
     .then((data) => console.log(data))
     .catch((err) => console.log(err))
   }
@@ -119,7 +137,7 @@ class Options extends React.Component {
     if (error) {
       return (
         <div className="container justify-content-center text-center">
-          <div className="row badge badge-danger m-2 p-2"><h3>Error: {error.message}</h3></div>
+          <div className="row badge badge-danger m-2 p-2"><h2>Error: {error.message}</h2></div>
         </div>
       );
     } else {

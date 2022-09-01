@@ -26,10 +26,9 @@ logger.setLevel(logging.INFO)
 region_name=os.environ['AWS_REGION']
 
 dynamodb = boto3.resource('dynamodb', region_name)
-sessions_table = dynamodb.Table('sessions-feedback-dev-Sessions')
-scores_table = dynamodb.Table('sessions-feedback-dev-Scores')
+colors_table = dynamodb.Table('rate-limiting-demo-prod')
 
-def get_session(event, context):
+def get_colors(event, context):
     logger.info('Received event: ' + json.dumps(event))
 
     session_id = event['queryStringParameters']['id']
@@ -61,27 +60,39 @@ def get_session(event, context):
 
 def write_feedback(event, context):
     logger.info('Received event: ' + json.dumps(event))
+    body = json.loads(event["body"])
 
-    session_id = event['body']['session_id']
-    user_id = event['body']['user_id']
-    score = event['body']['score']
+    user_id = body['user_id']
+    score = body['score']
     time_stamp = datetime.utcnow()
     time_stamp = time_stamp.strftime("%Y-%m-%d %H:%M:%S")
 
-    response = scores_table.put_item(
-        Item={
-                'session_id': session_id,
-                'user_id': user_id,
-                'score': score,
-                'time_stamp': time_stamp
-                }
-        )
+    ct = datetime.now()
+    ts = decimal.Decimal(ct.timestamp())
 
-    print("PutItem succeeded:")
-    print(json.dumps(response))
+    try:
+        response = colors_table.put_item(
+            Item={
+                    'user_id': user_id,
+                    'score': score,
+                    'time_stamp': ts
+                    }
+            )
 
-    return {
-        'statusCode': 200,
-        'headers': { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
-        'body': 'OK'
-    }
+    except ClientError as e:
+        logger.error(e.response['Error']['Message'])
+        return {
+            'statusCode': 500,
+            'headers': { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+            'body': '{ \"message\": \"Could not write to DB\" }'
+        }
+        raise SystemExit
+    else:
+        print("PutItem succeeded:")
+        print(json.dumps(response))
+
+        return {
+            'statusCode': 200,
+            'headers': { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+            'body': '{ \"message\": \"Vote saved.\" }'
+        }

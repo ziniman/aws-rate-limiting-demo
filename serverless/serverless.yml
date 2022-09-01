@@ -1,14 +1,16 @@
-service: sessions-feedback
+service: rate-limiting-demo
 
 plugins:
   - serverless-python-requirements
 provider:
   name: aws
   runtime: python3.9
+  lambdaHashingVersion: 20201221
   stackName: ${self:service}-CF-Template
   logRetentionInDays: 7
-  region: eu-west-1
-  memorySize: 128
+  timeout: 5
+  region: us-east-1
+  memorySize: 256
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -22,87 +24,72 @@ provider:
        - dynamodb:ListStreams
       Resource:
         - Fn::GetAtt:
-          - feebackSessions
-          - Arn
-        - Fn::GetAtt:
-          - feebackScores
+          - feebackColors
           - Arn
         - Fn::Join:
           - ""
           - - Fn::GetAtt:
-              - feebackScores
-              - Arn
-            - "/stream/*"
-        - Fn::Join:
-          - ""
-          - - Fn::GetAtt:
-              - feebackSessions
+              - feebackColors
               - Arn
             - "/stream/*"
 
-  stage: dev
+  stage: prod
+  httpApi:
+    cors: true
+  logs:
+    httpApi:
+      format: '{ "requestId":"$context.requestId", "ip": "$context.identity.sourceIp", "requestTime":"$context.requestTime", "httpMethod":"$context.httpMethod","routeKey":"$context.routeKey", "status":"$context.status","protocol":"$context.protocol", "responseLength":"$context.responseLength", "$context.integrationErrorMessage" }'
+
+
 
 functions:
-  GetSession:
-    handler: sessions_feedback.get_session
+  GetColors:
+    handler: rate_demo.get_colors
     events:
-      - http:
-          path: info/get_session
+      - httpApi:
+          path: /info/get_colors
           method: get
   WriteFeedback:
-    handler: sessions_feedback.write_feedback
+    handler: rate_demo.write_feedback
     events:
-      - http:
-          path: info/store_feedback
+      - httpApi:
+          path: /info/store_feedback
           method: post
-          cors: true
-          integration: lambda
   StreamData:
-    handler: session-feedback-scores-to-firehose.lambda_handler
+    dependsOn : feebackColors
+    handler: feedback-color-to-firehose.lambda_handler
     events:
       - stream:
           type: dynamodb
           arn:
-            Fn::GetAtt:
-              - feebackScores
-              - Arn
+            Fn::GetAtt: [feebackColors, StreamArn]
 
 
 resources:
   Resources:
-    feebackSessions:
+    feebackColors:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: ${self:service}-${self:provider.stage}-Sessions
+        TableName: ${self:service}-${self:provider.stage}
         AttributeDefinitions:
-          - AttributeName: session_id
-            AttributeType: S
-        KeySchema:
-          - AttributeName: session_id
-            KeyType: HASH
-        BillingMode: PAY_PER_REQUEST
-
-    feebackScores:
-      Type: AWS::DynamoDB::Table
-      Properties:
-        TableName: ${self:service}-${self:provider.stage}-Scores
-        AttributeDefinitions:
-          - AttributeName: session_id
-            AttributeType: S
+          - AttributeName: time_stamp
+            AttributeType: N
           - AttributeName: user_id
             AttributeType: S
         KeySchema:
-          - AttributeName: session_id
-            KeyType: HASH
           - AttributeName: user_id
+            KeyType: HASH
+          - AttributeName: time_stamp
             KeyType: RANGE
+        StreamSpecification:
+            StreamViewType: NEW_IMAGE
         BillingMode: PAY_PER_REQUEST
 
     #Cognito
     CognitoIdentityPool:
       Type: AWS::Cognito::IdentityPool
       Properties:
-        IdentityPoolName: SessionsFeedbackIdentityPool
+        IdentityPoolName: RateLimitingDemoIdentityPool
         AllowUnauthenticatedIdentities: true
 
     # IAM roles
@@ -135,7 +122,7 @@ resources:
                 'ForAnyValue:StringLike':
                   'cognito-identity.amazonaws.com:amr': unauthenticated
         Policies:
-          - PolicyName: SessionsFeedbackCognitoUnAuthorizedPolicy
+          - PolicyName: RateLimitingDemoCognitoUnAuthorizedPolicy
             PolicyDocument:
               Version: '2012-10-17'
               Statement:
@@ -154,5 +141,5 @@ resources:
                     - dynamodb:GetItem
                   Resource:
                     - Fn::GetAtt:
-                      - feebackSessions
+                      - feebackColors
                       - Arn
