@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import 'bootstrap/dist/css/bootstrap.css';
 import './index.css';
 import Cookies from 'universal-cookie';
@@ -29,9 +29,6 @@ function guid() {
   return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
 }
 
-//var urlParams = new URLSearchParams(window.location.search);
-//var session_id = urlParams.get('session_id');
-
 class Circle extends React.Component {
   handleClick (i){
     alert('Thanks for voting ' + i);
@@ -56,10 +53,6 @@ class VoteOutput extends React.Component {
   render() {
     var score = this.props.dataFromVote;
     var status = this.props.status;
-    console.log('----');
-    console.log(status);
-    console.log(score);
-    console.log('----');
 
     if (score && status === 200) {
         return (
@@ -102,8 +95,7 @@ class Options extends React.Component {
         body:JSON.stringify({user_id:user_id, score:a})
     })
     .then((res) => {
-      console.log(res.ok);
-      console.log(res.status);
+      console.log(res);
       this.setState({
           status: res.status,
       });
@@ -112,19 +104,28 @@ class Options extends React.Component {
             error:
               {message: "Can't store data"},
           });
-          setTimeout(() => {
-            console.log(this.error);
-            this.setState({
-                error: null,
-                score: null,
-                status: null,
-            });
-          }, 5000);
+        setTimeout(() => {
+          console.log(this.error);
+          this.setState({
+              error: null,
+              score: null,
+              status: null,
+          });
+        }, 5000);
       }
       res.json();
     })
-    .then((data) => console.log(data))
-    .catch((err) => console.log(err))
+    .catch((err) => {
+      console.log(err);
+      this.setState({
+          error: err
+        });
+      setTimeout(() => {
+        this.setState({
+            error: null,
+        });
+      }, 5000);
+    })
   }
 
   renderOptions(i, c = null) {
@@ -135,11 +136,7 @@ class Options extends React.Component {
   }
 
   render() {
-    const {hide, error, score, status} = this.state;
-    console.log('*----');
-    console.log(status);
-    console.log(score);
-    console.log('*----');
+    const {hide, error, score} = this.state;
     if (hide) {
         return (
           <div className="container">
@@ -198,7 +195,5 @@ class Vote extends React.Component {
 
 // ========================================
 
-ReactDOM.render(
-  <Vote />,
-  document.getElementById('root')
-);
+const root = createRoot(document.getElementById('root'));
+root.render(<Vote />);
