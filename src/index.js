@@ -55,8 +55,13 @@ class VoteOutput extends React.Component {
 
   render() {
     var score = this.props.dataFromVote;
+    var status = this.props.status;
+    console.log('----');
+    console.log(status);
+    console.log(score);
+    console.log('----');
 
-    if (score) {
+    if (score && status === 200) {
         return (
           <div className="container">
             <div className="row m-2 text-center justify-content-center"><h5>Thanks for your vote!</h5></div>
@@ -83,6 +88,7 @@ class Options extends React.Component {
       isLoaded: false,
       items: [],
       score: null,
+      status: null,
     };
   }
 
@@ -98,6 +104,9 @@ class Options extends React.Component {
     .then((res) => {
       console.log(res.ok);
       console.log(res.status);
+      this.setState({
+          status: res.status,
+      });
       if (res.status !== 200) {
         this.setState({
             error:
@@ -107,7 +116,8 @@ class Options extends React.Component {
             console.log(this.error);
             this.setState({
                 error: null,
-                score: null
+                score: null,
+                status: null,
             });
           }, 5000);
       }
@@ -125,7 +135,11 @@ class Options extends React.Component {
   }
 
   render() {
-    const {hide, error, score} = this.state;
+    const {hide, error, score, status} = this.state;
+    console.log('*----');
+    console.log(status);
+    console.log(score);
+    console.log('*----');
     if (hide) {
         return (
           <div className="container">
@@ -137,7 +151,7 @@ class Options extends React.Component {
     if (error) {
       return (
         <div className="container justify-content-center text-center">
-          <div className="row badge badge-danger m-2 p-2"><h2>Error: {error.message}</h2></div>
+          <div className="row badge badge-pill badge-danger m-4 p-4 col-md-auto"><h2>Error: {error.message}</h2></div>
         </div>
       );
     } else {
@@ -152,7 +166,7 @@ class Options extends React.Component {
           {this.renderOptions(5, "Green")}
         </div>
         <div className="row m-2 text-center justify-content-center"><h2>Pick your favorite color</h2></div>
-        <VoteOutput dataFromVote = {this.state.score} />
+        <VoteOutput dataFromVote = {this.state.score} status = {this.state.status}/>
       </div>
     );
     }

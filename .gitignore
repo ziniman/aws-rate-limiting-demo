@@ -12,6 +12,7 @@ serverless/node_modules
 # production
 /build
 /.next
+.env
 
 # misc
 .DS_Store
