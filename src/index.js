@@ -18,7 +18,7 @@ if (!EVENT_NAME) {
 if (!cookies.get('userID')) cookies.set('userID', guid(), { path: '/' });
 var user_id = cookies.get('userID');
 
-const colors = ['bg-danger', 'bg-dark', 'bg-warning', 'bg-primary', 'bg-success']
+const colors = ['bg-danger', 'bg-secondary', 'bg-warning', 'bg-primary', 'bg-success']
 
 function guid() {
   function s4() {
@@ -53,12 +53,14 @@ class VoteOutput extends React.Component {
   render() {
     var score = this.props.dataFromVote;
     var status = this.props.status;
+    var timer = this.props.timer;
 
     if (score && status === 200) {
         return (
           <div className="container">
             <div className="row m-2 text-center justify-content-center"><h5>Thanks for your vote!</h5></div>
             <div className="row m-2 text-center justify-content-center"><h5>We have recorded the color <b>{score}</b> as your selection.</h5></div>
+            <div className="row m-2 text-center justify-content-center"><h6>Call time: <b>{timer}</b>ms</h6></div>
           </div>
         );
     }
@@ -82,41 +84,46 @@ class Options extends React.Component {
       items: [],
       score: null,
       status: null,
+      timer: 0,
     };
   }
 
   handleChildClick(a, i) {
     this.setState({hide: false});
     this.setState({score: a});
-
+    var click_t = Date.now();
+    console.log(click_t);
     fetch(API_ENDPOINT + '/info/store_feedback', {
         method: 'POST',
         headers : {'Content-Type': 'application/json'},
         body:JSON.stringify({user_id:user_id, score:a})
     })
-    .then((res) => {
-      console.log(res);
-      this.setState({
-          status: res.status,
-      });
-      if (res.status !== 200) {
-        this.setState({
-            error:
-              {message: "Can't store data"},
-          });
-        setTimeout(() => {
-          console.log(this.error);
-          this.setState({
-              error: null,
-              score: null,
-              status: null,
-          });
-        }, 5000);
-      }
-      res.json();
-    })
+        .then(async res => {
+            const data = await res.json();
+
+            console.log(data.message);
+            this.setState({
+                status: res.status,
+            });
+            if (res.status !== 200) {
+                this.setState({
+                    error:
+                        {message: data.message},
+                });
+                setTimeout(() => {
+                    console.log(this.error);
+                    this.setState({
+                        error: null,
+                        score: null,
+                        status: null,
+                    });
+                }, 5000);
+            }
+
+
+        })
     .catch((err) => {
-      console.log(err);
+      console.log(JSON.stringify(err));
       this.setState({
           error: err
         });
@@ -136,7 +143,7 @@ class Options extends React.Component {
   }
 
   render() {
-    const {hide, error, score} = this.state;
+    const {hide, error, score, timer} = this.state;
     if (hide) {
         return (
           <div className="container">
@@ -157,13 +164,13 @@ class Options extends React.Component {
         <div className="row m-2 text-center justify-content-center"><h1>{EVENT_NAME}</h1></div>
         <div className="row m-2 text-center justify-content-center">
           {this.renderOptions(1, "Red")}
-          {this.renderOptions(2, "Black")}
+          {this.renderOptions(2, "Gray")}
           {this.renderOptions(3, "Yellow")}
           {this.renderOptions(4, "Blue")}
           {this.renderOptions(5, "Green")}
         </div>
         <div className="row m-2 text-center justify-content-center"><h2>Pick your favorite color</h2></div>
-        <VoteOutput dataFromVote = {this.state.score} status = {this.state.status}/>
+        <VoteOutput dataFromVote = {this.state.score} status = {this.state.status} timer = {this.state.timer}/>
       </div>
     );
     }
