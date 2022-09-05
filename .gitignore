@@ -30,4 +30,4 @@ serverless/*.csv
 serverless/*.zip
 serverless/parse.py
 
-serverless/rds_config.py
+serverless/rds_config.*
