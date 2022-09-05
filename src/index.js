@@ -92,7 +92,7 @@ class Options extends React.Component {
     this.setState({hide: false});
     this.setState({score: a});
     var click_t = Date.now();
-    console.log(click_t);
+
     fetch(API_ENDPOINT + '/info/store_feedback', {
         method: 'POST',
         headers : {'Content-Type': 'application/json'},
@@ -104,6 +104,7 @@ class Options extends React.Component {
             console.log(data.message);
             this.setState({
                 status: res.status,
+                timer: Date.now() - click_t,
             });
             if (res.status !== 200) {
                 this.setState({
@@ -155,7 +156,7 @@ class Options extends React.Component {
     if (error) {
       return (
         <div className="container justify-content-center text-center">
-          <div className="row badge badge-pill badge-danger m-4 p-4 col-md-auto"><h2>Error: {error.message}</h2></div>
+          <div className="row badge badge-pill badge-danger m-2 p-2 col-md-auto"><h2>Error: {error.message}</h2></div>
         </div>
       );
     } else {

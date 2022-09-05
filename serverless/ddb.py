@@ -3,7 +3,6 @@ import json
 import logging
 import decimal
 import os
-from boto3.dynamodb.conditions import Key, Attr
 from botocore.exceptions import ClientError
 from datetime import datetime
 
@@ -21,25 +20,38 @@ def write_into_db(event, context):
 
     user_id = body['user_id']
     score = body['score']
-    time_stamp = datetime.utcnow()
-    time_stamp = time_stamp.strftime("%Y-%m-%d %H:%M:%S")
-
     ct = datetime.now()
     ts = decimal.Decimal(ct.timestamp())
 
     try:
-        response = colors_table.put_item(
-            Item={
-                    'user_id': user_id,
-                    'score': score,
-                    'time_stamp': ts,
-                    'ttl': ts + 600
-                    }
+        response = colors_table.update_item(
+            Key={'color': score},
+            UpdateExpression='SET last_user_id=:i, ttl_flag=:t ADD score :c',
+            ExpressionAttributeValues={
+                    ':i': user_id,
+                    ':t': ts + 3600,
+                    ':c': 1
+            },
+            ReturnValues="UPDATED_NEW"
             )
 
     except ClientError as e:
         logger.error(e.response['Error']['Message'])
         raise e
     else:
-        logger.info('PutItem succeeded:' + json.dumps(response))
+        logger.info(response)
         return response
+
+def read_from_db(event, context):
+    logger.info('Received event: ' + json.dumps(event))
+    colors = []
+    try:
+        response = colors_table.scan(
+            ProjectionExpression = 'color, score'
+        )
+        colors.extend(response.get('Items', []))
+    except ClientError as e:
+        logger.error(e.response['Error']['Message'])
+        raise e
+    else:
+        return colors

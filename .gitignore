@@ -30,5 +30,4 @@ serverless/*.csv
 serverless/*.zip
 serverless/parse.py
 
-serverless/qr_codes
-serverless/qr.py
+serverless/rds_config.py

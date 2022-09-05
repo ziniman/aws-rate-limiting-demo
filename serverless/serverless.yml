@@ -5,7 +5,6 @@ plugins:
 provider:
   name: aws
   runtime: python3.9
-  lambdaHashingVersion: 20201221
   stackName: ${self:service}-CF-Template
   logRetentionInDays: 7
   timeout: 5
@@ -22,6 +21,7 @@ provider:
        - dynamodb:GetShardIterator
        - dynamodb:DescribeStream
        - dynamodb:ListStreams
+       - dynamodb:UpdateItem
       Resource:
         - Fn::GetAtt:
           - feebackColors
@@ -84,15 +84,11 @@ resources:
       Properties:
         TableName: ${self:service}-${self:provider.stage}
         AttributeDefinitions:
-          - AttributeName: time_stamp
-            AttributeType: N
-          - AttributeName: user_id
+          - AttributeName: color
             AttributeType: S
         KeySchema:
-          - AttributeName: user_id
+          - AttributeName: color
             KeyType: HASH
-          - AttributeName: time_stamp
-            KeyType: RANGE
         StreamSpecification:
             StreamViewType: NEW_IMAGE
         BillingMode: PAY_PER_REQUEST

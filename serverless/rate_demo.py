@@ -1,9 +1,8 @@
 import json
 import logging
 import decimal
-from boto3.dynamodb.conditions import Key, Attr
 from botocore.exceptions import ClientError
-from ddb import write_into_db
+from rds import write_into_db, read_from_db
 
 from datetime import datetime
 
@@ -21,39 +20,26 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 def get_colors(event, context):
-    logger.info('Received event: ' + json.dumps(event))
-
-    session_id = event['queryStringParameters']['id']
-
     try:
-        response = sessions_table.query(
-            KeyConditionExpression=Key('session_id').eq(session_id)
-        )
-
+        response = read_from_db (event, context)
     except ClientError as e:
-        logger.error(e.response['Error']['Message'])
-        #return event
+        return {
+            'statusCode': 500,
+            'headers': { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+            'body': '{ \"message\": \"Could not read from DB\" }'
+        }
         raise SystemExit
     else:
-        if (int(json.dumps(response[u'Count']))>0):
-            items = json.dumps(response[u'Items'], cls=DecimalEncoder)
-            print (items)
-
-            return {
-                'statusCode': 200,
-                'headers': { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
-                'body': items
-            }
-        else:
-            return {
-                'statusCode': 404,
-                'headers': { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
-            }
+        return {
+            'statusCode': 200,
+            'headers': { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+            'body': response
+        }
 
 def write_feedback(event, context):
     try:
         response = write_into_db (event, context)
-    except Error as e:
+    except ClientError as e:
         return {
             'statusCode': 500,
             'headers': { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
