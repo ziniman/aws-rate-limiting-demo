@@ -1,12 +1,9 @@
-from __future__ import print_function
-
-import boto3
 import json
 import logging
-import os
 import decimal
 from boto3.dynamodb.conditions import Key, Attr
 from botocore.exceptions import ClientError
+from ddb import write_into_db
 
 from datetime import datetime
 
@@ -22,11 +19,6 @@ class DecimalEncoder(json.JSONEncoder):
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
-
-region_name=os.environ['AWS_REGION']
-
-dynamodb = boto3.resource('dynamodb', region_name)
-colors_table = dynamodb.Table('rate-limiting-demo-prod')
 
 def get_colors(event, context):
     logger.info('Received event: ' + json.dumps(event))
@@ -59,28 +51,9 @@ def get_colors(event, context):
             }
 
 def write_feedback(event, context):
-    logger.info('Received event: ' + json.dumps(event))
-    body = json.loads(event["body"])
-
-    user_id = body['user_id']
-    score = body['score']
-    time_stamp = datetime.utcnow()
-    time_stamp = time_stamp.strftime("%Y-%m-%d %H:%M:%S")
-
-    ct = datetime.now()
-    ts = decimal.Decimal(ct.timestamp())
-
     try:
-        response = colors_table.put_item(
-            Item={
-                    'user_id': user_id,
-                    'score': score,
-                    'time_stamp': ts
-                    }
-            )
-
-    except ClientError as e:
-        logger.error(e.response['Error']['Message'])
+        response = write_into_db (event, context)
+    except Error as e:
         return {
             'statusCode': 500,
             'headers': { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
@@ -88,9 +61,6 @@ def write_feedback(event, context):
         }
         raise SystemExit
     else:
-        print("PutItem succeeded:")
-        print(json.dumps(response))
-
         return {
             'statusCode': 200,
             'headers': { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
