@@ -17,7 +17,7 @@ start = time.time()
 
 processes = []
 with ThreadPoolExecutor(max_workers=200) as executor:
-    for i in range(1000):
+    for i in range(3000):
         for url in url_list:
             for color in colors:
                 future = executor.submit(call_url, url, color)

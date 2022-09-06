@@ -2,6 +2,11 @@ import React from 'react';
 import ReactApexChart from 'react-apexcharts';
 
 const API_ENDPOINT = process.env.REACT_APP_BACKEND_API;
+var EVENT_NAME = process.env.REACT_APP_EVENT_NAME
+
+if (!EVENT_NAME) {
+  EVENT_NAME = 'AWS Events';
+}
 
 function get_data(){
 
@@ -12,8 +17,9 @@ class Master extends React.Component {
     super(props);
 
     this.state = {
-      series: [0, 0, 0, 0],
+      series: [1, 1, 1, 1, 1],
       options: {
+        labels: ['Blue', 'Gray', 'Green', 'Red', 'Yellow'],
         chart: {
           type: 'donut',
           animations: {
@@ -32,7 +38,13 @@ class Master extends React.Component {
           foreColor: '#fff',
         },
         dataLabels: {
-          enabled: true
+          enabled: true,
+          style: {
+              fontSize: '20px',
+              fontFamily: 'Helvetica, Arial, sans-serif',
+              fontWeight: 'bold',
+              colors: ['#fff']
+          },
         },
         plotOptions: {
           pie: {
@@ -41,13 +53,21 @@ class Master extends React.Component {
           }
         },
         fill: {
-          colors: ['#dc3545', '#6c757d', '#ffc107', '#007bff', '#28a745']
+          colors: ['#007bff', '#6c757d','#28a745', '#dc3545', '#ffc107']
         },
         title: {
-          text: 'Gradient Donut with custom Start-angle'
-        },
-        markers: {
-           colors: ['#F44336', '#E91E63', '#9C27B0']
+          text: EVENT_NAME,
+          align: 'center',
+          margin: 10,
+          offsetX: 0,
+          offsetY: 0,
+          floating: false,
+          style: {
+            fontSize:  '30px',
+            fontWeight:  'bold',
+            fontFamily:  undefined,
+            color:  '#fff'
+          },
         },
         responsive: [{
           breakpoint: 480,
@@ -61,9 +81,7 @@ class Master extends React.Component {
           }
         }],
         legend: {
-          position: 'right',
-          offsetY: 0,
-          height: 230,
+          show: false
         }
       },
     };
@@ -79,10 +97,25 @@ class Master extends React.Component {
     .then(async res => {
       const data = await res.json();
       console.log(data);
-      this.setState({
-        series: [data['Gray'], data['Blue'], data['Yellow'], data['Red'], data['Green']]
-      })
 
+      if (res.status !== 200) {
+          this.setState({
+              error:
+                  {message: data.message},
+          });
+          setTimeout(() => {
+              this.setState({
+                  error: null,
+                  score: null,
+                  status: null,
+              });
+          }, 5000);
+      }
+      else {
+        this.setState({
+          series: [data['Blue'], data['Gray'], data['Green'], data['Red'], data['Yellow']]
+        })
+      }
     });
   }
 
@@ -95,15 +128,24 @@ class Master extends React.Component {
   }
 
   render() {
-    return (
-      <div className="container">
-        <div className="chart-wrap">
-          <div id="chart">
-            <ReactApexChart options={this.state.options} series={this.state.series} labels={this.state.labels} type="donut" />
+    const {error} = this.state;
+    if (error) {
+      return (
+        <div className="container justify-content-center text-center">
+          <div className="row badge block-wrap badge-pill badge-danger m-5 p-2"><h4>Error: {error.message}</h4></div>
+        </div>
+      );
+    } else {
+      return (
+        <div className="container">
+          <div className="chart-wrap">
+            <div id="chart">
+              <ReactApexChart options={this.state.options} series={this.state.series} labels={this.state.labels} type="donut" />
+            </div>
           </div>
         </div>
-      </div>
-    );
+      );
+    }
   }
 
 }
