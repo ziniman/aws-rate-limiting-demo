@@ -39,10 +39,11 @@ def get_colors(event, context):
         }
         raise SystemExit
     else:
+        logger.info(response)
         return {
             'statusCode': 200,
             'headers': { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
-            'body': response
+            'body': json.dumps(response)
         }
 
 def write_feedback(event, context):

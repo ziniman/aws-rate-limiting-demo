@@ -1,125 +1,113 @@
 import React from 'react';
-import ReactApexChart from 'react-apexcharts'
+import ReactApexChart from 'react-apexcharts';
 
+const API_ENDPOINT = process.env.REACT_APP_BACKEND_API;
+
+function get_data(){
+
+}
 
 class Master extends React.Component {
-        constructor(props) {
-          super(props);
+    constructor(props) {
+    super(props);
 
-          this.state = {
-
-            series: [44, 55, 13, 33],
-            options: {
-              chart: {
-                width: 380,
-                type: 'donut',
-              },
-              dataLabels: {
-                enabled: false
-              },
-              responsive: [{
-                breakpoint: 480,
-                options: {
-                  chart: {
-                    width: 200
-                  },
-                  legend: {
-                    show: false
-                  }
-                }
-              }],
-              legend: {
-                position: 'right',
-                offsetY: 0,
-                height: 230,
-              }
+    this.state = {
+      series: [0, 0, 0, 0],
+      options: {
+        chart: {
+          type: 'donut',
+          animations: {
+            enabled: true,
+            easing: 'linear',
+            speed: 600,
+            animateGradually: {
+                enabled: true,
+                delay: 150
             },
-
-
-          };
+            dynamicAnimation: {
+                enabled: true,
+                speed: 350
+            }
+          },
+          foreColor: '#fff',
+        },
+        dataLabels: {
+          enabled: true
+        },
+        plotOptions: {
+          pie: {
+            startAngle: -90,
+            endAngle: 270
+          }
+        },
+        fill: {
+          colors: ['#dc3545', '#6c757d', '#ffc107', '#007bff', '#28a745']
+        },
+        title: {
+          text: 'Gradient Donut with custom Start-angle'
+        },
+        markers: {
+           colors: ['#F44336', '#E91E63', '#9C27B0']
+        },
+        responsive: [{
+          breakpoint: 480,
+          options: {
+            chart: {
+              width: 200
+            },
+            legend: {
+              show: false
+            }
+          }
+        }],
+        legend: {
+          position: 'right',
+          offsetY: 0,
+          height: 230,
         }
+      },
+    };
+  }
 
+  call_url() {
+    var data;
 
-        appendData() {
-          var arr = this.state.series.slice()
-          arr.push(Math.floor(Math.random() * (100 - 1 + 1)) + 1)
+    fetch(API_ENDPOINT + '/info/get_colors', {
+      method: 'GET',
+      headers : {'Content-Type': 'application/json'}
+    })
+    .then(async res => {
+      const data = await res.json();
+      console.log(data);
+      this.setState({
+        series: [data['Gray'], data['Blue'], data['Yellow'], data['Red'], data['Green']]
+      })
 
-          this.setState({
-            series: arr
-          })
-        }
+    });
+  }
 
-        removeData() {
-          if(this.state.series.length === 1) return
+  componentDidMount() {
+    this.interval = setInterval(() => this.call_url(), 3000);
+  }
 
-          var arr = this.state.series.slice()
-          arr.pop()
+  componentWillUnmount() {
+    clearInterval(this.interval);
+  }
 
-          this.setState({
-            series: arr
-          })
-        }
-
-        randomize() {
-          this.setState({
-            series: this.state.series.map(function() {
-              return Math.floor(Math.random() * (100 - 1 + 1)) + 1
-            })
-          })
-        }
-
-        reset() {
-          this.setState({
-            series: [44, 55, 13, 33]
-          })
-        }
-
-
-        render() {
-          return (
-
-
-          <div class="container">
-            <div class="chart-wrap">
-              <div id="chart">
-                <ReactApexChart options={this.state.options} series={this.state.series} type="donut" />
-              </div>
-            </div>
-
-            <div class="actions">
-              <button
-
-                  onClick={() => this.appendData()}
-                  >
-                + ADD
-              </button>
-              &nbsp;
-              <button
-
-                  onClick={() => this.removeData()}
-                  >
-                - REMOVE
-              </button>
-              &nbsp;
-              <button
-
-                  onClick={() => this.randomize()}
-                  >
-                RANDOMIZE
-              </button>
-              &nbsp;
-              <button
-
-                  onClick={() => this.reset()}
-                  >
-                RESET
-              </button>
-            </div>
+  render() {
+    return (
+      <div className="container">
+        <div className="chart-wrap">
+          <div id="chart">
+            <ReactApexChart options={this.state.options} series={this.state.series} labels={this.state.labels} type="donut" />
           </div>
+        </div>
+      </div>
+    );
+  }
+
+}
 
 
-          );
-        }
-      }
 
 export default Master;

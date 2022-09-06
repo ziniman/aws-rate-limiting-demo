@@ -50,7 +50,7 @@ def write_into_db(event, context):
 
 def read_from_db(event, context):
     logger.info('Received event: ' + json.dumps(event))
-    colors = []
+    colors = {}
 
     try:
         conn = pymysql.connect(host=rds_host, user=name, passwd=password, db=db_name, connect_timeout=5)
@@ -65,8 +65,7 @@ def read_from_db(event, context):
             cur.execute("SELECT color, count(user_id) FROM votes group by color;")
             for row in cur:
                 item_count += 1
-                colors.extend(row)
-                logger.info(row)
+                colors[row[0]] = row[1]
         return colors
     except BaseException as e:
         logger.error(e.args[1])
