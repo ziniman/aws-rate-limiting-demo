@@ -29,6 +29,15 @@ def get_colors(event, context):
             'body': '{ \"message\": \"Could not read from DB\" }'
         }
         raise SystemExit
+    except Exception as e:
+        logger.info(e)
+        response_text = '{ \"message\": \"%s\" }' % e
+        return {
+            'statusCode': 500,
+            'headers': { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+            'body': response_text
+        }
+        raise SystemExit
     else:
         return {
             'statusCode': 200,
@@ -44,6 +53,15 @@ def write_feedback(event, context):
             'statusCode': 500,
             'headers': { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
             'body': '{ \"message\": \"Could not write to DB\" }'
+        }
+        raise SystemExit
+    except Exception as e:
+        logger.info(e)
+        response_text = '{ \"message\": \"%s\" }' % e
+        return {
+            'statusCode': 500,
+            'headers': { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+            'body': response_text
         }
         raise SystemExit
     else:

@@ -112,7 +112,6 @@ class Options extends React.Component {
                         {message: data.message},
                 });
                 setTimeout(() => {
-                    console.log(this.error);
                     this.setState({
                         error: null,
                         score: null,
@@ -156,7 +155,7 @@ class Options extends React.Component {
     if (error) {
       return (
         <div className="container justify-content-center text-center">
-          <div className="row badge badge-pill badge-danger m-2 p-2 col-md-auto"><h2>Error: {error.message}</h2></div>
+          <div className="row badge badge-pill badge-danger m-2 p-2"><h4>Error: {error.message}</h4></div>
         </div>
       );
     } else {
