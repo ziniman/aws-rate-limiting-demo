@@ -79,3 +79,7 @@ code {
     border-radius: 90px;
     font-size: 70px;
   } }
+
+  .badge.block-wrap {
+    white-space: normal;
+  }

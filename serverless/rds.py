@@ -67,7 +67,6 @@ def read_from_db(event, context):
                 item_count += 1
                 colors.extend(row)
                 logger.info(row)
-        conn.commit()
         return colors
     except BaseException as e:
         logger.error(e.args[1])

@@ -1,4 +1,8 @@
-class ApexChart extends React.Component {
+import React from 'react';
+import ReactApexChart from 'react-apexcharts'
+
+
+class Master extends React.Component {
         constructor(props) {
           super(props);
 
@@ -75,48 +79,47 @@ class ApexChart extends React.Component {
           return (
 
 
-      <div>
-  <div class="chart-wrap">
-    <div id="chart">
-  <ReactApexChart options={this.state.options} series={this.state.series} type="donut" width={380} />
-</div>
-  </div>
+          <div class="container">
+            <div class="chart-wrap">
+              <div id="chart">
+                <ReactApexChart options={this.state.options} series={this.state.series} type="donut" />
+              </div>
+            </div>
 
-  <div class="actions">
-    <button
+            <div class="actions">
+              <button
 
-        onClick={() => this.appendData()}
-        >
-      + ADD
-    </button>
-    &nbsp;
-    <button
+                  onClick={() => this.appendData()}
+                  >
+                + ADD
+              </button>
+              &nbsp;
+              <button
 
-        onClick={() => this.removeData()}
-        >
-      - REMOVE
-    </button>
-    &nbsp;
-    <button
+                  onClick={() => this.removeData()}
+                  >
+                - REMOVE
+              </button>
+              &nbsp;
+              <button
 
-        onClick={() => this.randomize()}
-        >
-      RANDOMIZE
-    </button>
-    &nbsp;
-    <button
+                  onClick={() => this.randomize()}
+                  >
+                RANDOMIZE
+              </button>
+              &nbsp;
+              <button
 
-        onClick={() => this.reset()}
-        >
-      RESET
-    </button>
-  </div>
-</div>
+                  onClick={() => this.reset()}
+                  >
+                RESET
+              </button>
+            </div>
+          </div>
 
 
           );
         }
       }
 
-      const domContainer = document.querySelector('#app');
-      ReactDOM.render(React.createElement(ApexChart), domContainer);
+export default Master;
