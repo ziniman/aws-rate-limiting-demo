@@ -8,15 +8,12 @@ if (!EVENT_NAME) {
   EVENT_NAME = 'AWS Events';
 }
 
-function get_data(){
-
-}
-
 class Master extends React.Component {
     constructor(props) {
     super(props);
 
     this.state = {
+      time: 0,
       series: [1, 1, 1, 1, 1],
       options: {
         labels: ['Blue', 'Gray', 'Green', 'Red', 'Yellow'],
@@ -49,11 +46,18 @@ class Master extends React.Component {
         plotOptions: {
           pie: {
             startAngle: -90,
-            endAngle: 270
-          }
+            endAngle: 270,
+            donut: {
+              size: '35%'
+            },
+          },
         },
         fill: {
           colors: ['#007bff', '#6c757d','#28a745', '#dc3545', '#ffc107']
+        },
+        tooltip: {
+          enabled: false,
+          fillSeriesColor: true,
         },
         title: {
           text: EVENT_NAME,
@@ -65,7 +69,7 @@ class Master extends React.Component {
           style: {
             fontSize:  '30px',
             fontWeight:  'bold',
-            fontFamily:  undefined,
+            fontFamily:  'Helvetica, Arial, sans-serif',
             color:  '#fff'
           },
         },
@@ -88,7 +92,7 @@ class Master extends React.Component {
   }
 
   call_url() {
-    var data;
+    var call_time = Date.now();
 
     fetch(API_ENDPOINT + '/info/get_colors', {
       method: 'GET',
@@ -103,24 +107,19 @@ class Master extends React.Component {
               error:
                   {message: data.message},
           });
-          setTimeout(() => {
-              this.setState({
-                  error: null,
-                  score: null,
-                  status: null,
-              });
-          }, 5000);
       }
       else {
         this.setState({
-          series: [data['Blue'], data['Gray'], data['Green'], data['Red'], data['Yellow']]
+          series: [data['Blue'], data['Gray'], data['Green'], data['Red'], data['Yellow']],
+          time: Date.now() - call_time,
+          error: null,
         })
       }
     });
   }
 
   componentDidMount() {
-    this.interval = setInterval(() => this.call_url(), 3000);
+    this.interval = setInterval(() => this.call_url(), 2000);
   }
 
   componentWillUnmount() {
@@ -137,11 +136,12 @@ class Master extends React.Component {
       );
     } else {
       return (
-        <div className="container">
+        <div className="container justify-content-center text-center">
           <div className="chart-wrap">
             <div id="chart">
               <ReactApexChart options={this.state.options} series={this.state.series} labels={this.state.labels} type="donut" />
             </div>
+            <div id="message" className="badge block-wrap badge-primary m-3 p-2"><h5>Call time: {this.state.time}ms</h5></div>
           </div>
         </div>
       );
@@ -149,7 +149,5 @@ class Master extends React.Component {
   }
 
 }
-
-
 
 export default Master;

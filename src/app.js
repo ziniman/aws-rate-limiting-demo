@@ -1,7 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { createRoot } from 'react-dom/client';
-import Master from "./master";
 import 'bootstrap/dist/css/bootstrap.css';
 import './index.css';
 import Cookies from 'universal-cookie';

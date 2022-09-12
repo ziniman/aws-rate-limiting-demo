@@ -42,6 +42,7 @@ def write_into_db(event, context):
         with conn.cursor() as cur:
             cur.execute('insert into votes (user_id, timestamp, color) values ("%s", %f, "%s")' % (user_id, ts, score))
             if user_id != 'Loader': conn.commit()
+            #time.sleep(1)
             return True
     except BaseException as e:
         logger.error(e.args[1])

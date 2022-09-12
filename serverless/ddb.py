@@ -44,14 +44,16 @@ def write_into_db(event, context):
 
 def read_from_db(event, context):
     logger.info('Received event: ' + json.dumps(event))
-    colors = []
+    colors = {}
     try:
         response = colors_table.scan(
             ProjectionExpression = 'color, score'
         )
-        colors.extend(response.get('Items', []))
+        for item in response.get('Items', []):
+            colors[item['color']] = int(item['score'])
     except ClientError as e:
         logger.error(e.response['Error']['Message'])
         raise e
     else:
+        colors = dict(colors)
         return colors

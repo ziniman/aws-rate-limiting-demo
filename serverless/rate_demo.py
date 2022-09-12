@@ -39,7 +39,7 @@ def get_colors(event, context):
         }
         raise SystemExit
     else:
-        logger.info(response)
+        logger.info(json.dumps(response))
         return {
             'statusCode': 200,
             'headers': { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
