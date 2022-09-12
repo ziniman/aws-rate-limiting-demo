@@ -2,11 +2,16 @@ import React from 'react';
 import ReactApexChart from 'react-apexcharts';
 
 const API_ENDPOINT = process.env.REACT_APP_BACKEND_API;
-var EVENT_NAME = process.env.REACT_APP_EVENT_NAME
+var EVENT_NAME = process.env.REACT_APP_EVENT_NAME;
+
+document.title = EVENT_NAME
 
 if (!EVENT_NAME) {
   EVENT_NAME = 'AWS Events';
 }
+
+console.log(EVENT_NAME);
+console.log(API_ENDPOINT);
 
 class Master extends React.Component {
     constructor(props) {
@@ -14,7 +19,7 @@ class Master extends React.Component {
 
     this.state = {
       time: 0,
-      series: [1, 1, 1, 1, 1],
+      series: [0, 0, 0, 0, 0],
       options: {
         labels: ['Blue', 'Gray', 'Green', 'Red', 'Yellow'],
         chart: {

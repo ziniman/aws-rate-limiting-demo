@@ -13,7 +13,7 @@ import './index.css';
 
 var EVENT_NAME = process.env.REACT_APP_EVENT_NAME
 
-document.title = "re:Invent 2022 - Rate limiting demo"
+document.title = EVENT_NAME
 
 if (!EVENT_NAME) {
   EVENT_NAME = 'AWS Events';
