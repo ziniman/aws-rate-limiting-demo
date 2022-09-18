@@ -21,6 +21,7 @@ with ThreadPoolExecutor(max_workers=200) as executor:
         for url in url_list:
             for color in colors:
                 future = executor.submit(call_url, url, color)
+                #time.sleep(0.1)
                 #print (future.result())
 
 print(f'Time taken: {time.time() - start}')

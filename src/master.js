@@ -64,25 +64,11 @@ class Master extends React.Component {
           enabled: false,
           fillSeriesColor: true,
         },
-        title: {
-          text: EVENT_NAME,
-          align: 'center',
-          margin: 10,
-          offsetX: 0,
-          offsetY: 0,
-          floating: false,
-          style: {
-            fontSize:  '30px',
-            fontWeight:  'bold',
-            fontFamily:  'Helvetica, Arial, sans-serif',
-            color:  '#fff'
-          },
-        },
         responsive: [{
-          breakpoint: 480,
+          breakpoint: 400,
           options: {
             chart: {
-              width: 200
+              width: 300
             },
             legend: {
               show: false
@@ -114,6 +100,10 @@ class Master extends React.Component {
           });
       }
       else {
+        var c
+        for (c in this.state.options.labels) {
+          if (typeof(data[this.state.options.labels[c]]) == 'undefined') data[this.state.options.labels[c]]=0;
+        }
         this.setState({
           series: [data['Blue'], data['Gray'], data['Green'], data['Red'], data['Yellow']],
           time: Date.now() - call_time,
@@ -143,6 +133,7 @@ class Master extends React.Component {
       return (
         <div className="container justify-content-center text-center">
           <div className="chart-wrap">
+            <div><h1 className="text-center font-weight-bold m-3 p-2">{EVENT_NAME}</h1></div>
             <div id="chart">
               <ReactApexChart options={this.state.options} series={this.state.series} labels={this.state.labels} type="donut" />
             </div>

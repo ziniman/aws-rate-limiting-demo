@@ -7,6 +7,7 @@ import rds_config
 import pymysql
 from botocore.exceptions import ClientError
 from datetime import datetime
+import time
 
 region_name=os.environ['AWS_REGION']
 

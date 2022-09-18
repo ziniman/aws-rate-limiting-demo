@@ -24,13 +24,15 @@ def write_into_db(event, context):
     ts = decimal.Decimal(ct.timestamp())
 
     try:
+        c = 1
+        if (user_id=='Loader'): c = 0
         response = colors_table.update_item(
             Key={'color': score},
             UpdateExpression='SET last_user_id=:i, ttl_flag=:t ADD score :c',
             ExpressionAttributeValues={
                     ':i': user_id,
                     ':t': ts + 3600,
-                    ':c': 1
+                    ':c': c
             },
             ReturnValues="UPDATED_NEW"
             )

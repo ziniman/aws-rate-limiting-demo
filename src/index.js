@@ -10,15 +10,6 @@ import App from "./app";
 import 'bootstrap/dist/css/bootstrap.css';
 import './index.css';
 
-
-var EVENT_NAME = process.env.REACT_APP_EVENT_NAME
-
-document.title = EVENT_NAME
-
-if (!EVENT_NAME) {
-  EVENT_NAME = 'AWS Events';
-}
-
 // ========================================
 
 const root = ReactDOMClient.createRoot(document.getElementById('root'));

@@ -2,7 +2,7 @@ import json
 import logging
 import decimal
 from botocore.exceptions import ClientError
-from rds import write_into_db, read_from_db
+from ddb import write_into_db, read_from_db
 
 from datetime import datetime
 
