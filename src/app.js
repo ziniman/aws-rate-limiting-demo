@@ -161,7 +161,7 @@ class Options extends React.Component {
     } else {
     return (
       <div className="container">
-        <div className="row m-2 text-center justify-content-center"><h1>{EVENT_NAME}</h1></div>
+        <div className="row m-3 p-2 text-center justify-content-center"><h1>{EVENT_NAME}</h1></div>
         <div className="row m-2 text-center justify-content-center">
           {this.renderOptions(1, "Red")}
           {this.renderOptions(2, "Gray")}

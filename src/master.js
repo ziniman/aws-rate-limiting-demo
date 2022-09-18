@@ -133,7 +133,7 @@ class Master extends React.Component {
       return (
         <div className="container justify-content-center text-center">
           <div className="chart-wrap">
-            <div><h1 className="text-center font-weight-bold m-3 p-2">{EVENT_NAME}</h1></div>
+            <div><h1 className="text-center justify-content-center m-3 p-2">{EVENT_NAME}</h1></div>
             <div id="chart">
               <ReactApexChart options={this.state.options} series={this.state.series} labels={this.state.labels} type="donut" />
             </div>
