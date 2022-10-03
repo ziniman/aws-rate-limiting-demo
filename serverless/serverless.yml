@@ -7,7 +7,6 @@ provider:
   runtime: python3.9
   stackName: ${self:service}-CF-Template
   logRetentionInDays: 7
-  timeout: 5
   region: us-east-1
   memorySize: 128
   iamRoleStatements:
@@ -46,23 +45,18 @@ provider:
       - subnet-031937f50c7fa14c1
       - subnet-0ba536ad50c2a3f66
       - subnet-0e9642d1f62ee79e6
-  environment:
-    MYSQLHOST: 'xxxxx.rds.amazonaws.com'
-    MYSQLPORT: 'xxx'
-    MYSQLUSER: 'xxx'
-    MYSQLPASS: 'xxxxx'
-    MYSQLDATABASE: 'xxxx'
-
 
 functions:
   GetColors:
     handler: rate_demo.get_colors
+    timeout: 25
     events:
       - httpApi:
           path: /info/get_colors
           method: get
   WriteFeedback:
     handler: rate_demo.write_feedback
+    timeout: 25
     events:
       - httpApi:
           path: /info/store_feedback
