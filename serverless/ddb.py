@@ -5,6 +5,7 @@ import decimal
 import os
 from botocore.exceptions import ClientError
 from datetime import datetime
+import time
 
 region_name=os.environ['AWS_REGION']
 
@@ -36,7 +37,7 @@ def write_into_db(event, context):
             },
             ReturnValues="UPDATED_NEW"
             )
-
+        time.sleep(1)
     except ClientError as e:
         logger.error(e.response['Error']['Message'])
         raise e
