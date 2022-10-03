@@ -78,7 +78,12 @@ code {
     height: 170px;
     border-radius: 90px;
     font-size: 70px;
-  } }
+  }
+  .container {
+    max-width: 960px;
+  }
+
+}
 
   .badge.block-wrap {
     white-space: normal;
