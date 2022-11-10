@@ -30,5 +30,6 @@ serverless/*.csv
 serverless/*.zip
 serverless/parse.py
 serverless/secret.py
+serverless/__pycache__
 
 serverless/rds_config.*
