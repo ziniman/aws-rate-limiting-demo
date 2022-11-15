@@ -18,7 +18,7 @@ start = time.time()
 processes = []
 c = 0
 color = ""
-with ThreadPoolExecutor(max_workers=8) as executor:
+with ThreadPoolExecutor(max_workers=200) as executor:
     for i in range(3000):
         for url in url_list:
             for color in colors:
