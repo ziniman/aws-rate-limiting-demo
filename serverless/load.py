@@ -16,12 +16,15 @@ def call_url(url, color):
 start = time.time()
 
 processes = []
-with ThreadPoolExecutor(max_workers=200) as executor:
+c = 0
+color = ""
+with ThreadPoolExecutor(max_workers=8) as executor:
     for i in range(3000):
         for url in url_list:
             for color in colors:
                 future = executor.submit(call_url, url, color)
+                c += 1
                 #time.sleep(0.1)
-                #print (future.result())
+                print (f"{future.result()} {c}. {color}...")
 
 print(f'Time taken: {time.time() - start}')
