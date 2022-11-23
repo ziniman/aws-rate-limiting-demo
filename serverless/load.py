@@ -25,6 +25,6 @@ with ThreadPoolExecutor(max_workers=200) as executor:
                 future = executor.submit(call_url, url, color)
                 c += 1
                 #time.sleep(0.1)
-                print (f"{future.result()} {c}. {color}...")
+                #print (f"{future.result()} {c}. {color}...")
 
 print(f'Time taken: {time.time() - start}')
